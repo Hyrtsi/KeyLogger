@@ -34,7 +34,7 @@ void LOG(int input)
 		LogFile.close();
 	}
 }
-
+/*
 void GatherData(void)
 {
 	auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -100,7 +100,7 @@ void GatherData(void)
 	printf("Closing the log file\n");
 	logFile.close();
 }
-
+*/
 
 int main()
 {
@@ -144,6 +144,13 @@ int main()
 			break;
 		}
 
+
+
+
+		// Save the cursor data
+		GetCursorPos(&p);
+		logFile << p.x << "," << p.y << "\n";
+		++lineCount;
 	}
 
 
