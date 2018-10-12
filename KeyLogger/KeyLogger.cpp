@@ -7,10 +7,16 @@
 #include <string>
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
-#include <fstream>
+//#include <iostream>
 #include <chrono>
 
+#include "Logger.hpp"
+#include "Actor.hpp"
+
+// Common already included in the header files above
+
+
+// TODO remove below
 using namespace std;
 
 void LOG(string input)
@@ -102,7 +108,78 @@ void GatherData(void)
 }
 */
 
-int main()
+void logKey(int button, std::ofstream& logFile)
+{
+	if (GetKeyState(button) < 0)
+	{
+		logFile << " " << 1;
+	}
+	else
+	{
+		logFile << " " << 0;
+	}
+}
+
+void CreateLogEntry(std::ofstream& logFile)
+{
+	auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	logFile << now << " ";
+
+	POINT p;
+	GetCursorPos(&p);
+	logFile << p.x << " " << p.y;
+
+	auto keysToTrack = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
+		VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
+		49,50,51};
+	 
+	for (auto key : keysToTrack)
+	{
+		logKey(key, logFile);
+	}
+
+	logFile << "\n";
+
+	/*
+	if (GetAsyncKeyState(VK_LBUTTON) == -32767)
+	{
+		// Left mouse pressed :)
+		//printf("The user pressed left button\n");
+	}
+
+	if (GetAsyncKeyState(VK_RBUTTON) == -32767)
+	{
+		// RMB
+		//printf("The user pressed right button\n");
+	}
+
+	if (GetAsyncKeyState(VK_SPACE) == -32767)
+	{
+		// space
+		//printf("The user pressed spacebar\n");
+	}
+	*/
+}
+
+void main(void)
+{
+	Logger eventLogger(120, 1);
+	eventLogger.createLog();
+
+	// TEMP put this here
+
+	// TODO put under some UI or something...
+	//LogParser parser;
+	//parser.parseLog("log_1539262127653.txt");
+	
+	//Actor actor;
+	//actor.doAnotherThing();
+
+	// Prevent the console from closing...
+	system("pause");
+}
+
+int main2()
 {
 	// To hide the console...
 	//ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -113,48 +190,26 @@ int main()
 	std::string fileName = "log_" + std::to_string(now) + ".txt";
 	std::ofstream logFile(fileName);
 
-	POINT p;
+	int samplesPerSecond = 60;
+	int sleepTimeMs = 1000 / samplesPerSecond;
 	int lineCount = 0;
+
+	printf("Beginning logging\n");
 
 	while (true)
 	{
-		Sleep(10);//temp
-		
-		if (GetAsyncKeyState(VK_LBUTTON) == -32767)
-		{
-			// Left mouse pressed :)
-			//printf("The user pressed left button\n");
-		}
-		
-		if (GetAsyncKeyState(VK_RBUTTON) == -32767)
-		{
-			// RMB
-			//printf("The user pressed right button\n");
-		}
-
-		if (GetAsyncKeyState(VK_SPACE) == -32767)
-		{
-			// space
-			//printf("The user pressed spacebar\n");
-		}
-
 		if (GetAsyncKeyState(VK_F10) == -32767)
 		{
 			printf("Got F10. Exiting...\n");
 			break;
 		}
 
+		Sleep(sleepTimeMs);
+		
+		CreateLogEntry(logFile);
 
-
-
-		// Save the cursor data
-		GetCursorPos(&p);
-		logFile << p.x << "," << p.y << "\n";
 		++lineCount;
 	}
-
-
-
 
 	auto end = std::chrono::steady_clock::now();
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
@@ -171,9 +226,6 @@ int main()
 
 	printf("Closing the log file\n");
 	logFile.close();
-
-
-
 
 	return 0;
 }
