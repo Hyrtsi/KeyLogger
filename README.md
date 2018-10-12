@@ -29,3 +29,13 @@ Hyrtsi
 ## Acknowledgements
 
 TODO
+
+## TODO
+
+- remove absolute paths from vs files
+- the whole vs could be removed from this project
+- use Lehdari's pulautin and such machines, cmake
+- minimal working demos, preferably in different repo or branch than the main thing that is under construction
+- tests maybe
+- plug and play examples
+- UI with imgui
