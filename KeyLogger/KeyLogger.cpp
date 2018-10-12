@@ -161,23 +161,56 @@ void CreateLogEntry(std::ofstream& logFile)
 	*/
 }
 
-void main(void)
+
+void doTheUIThing(void)
 {
 	Logger eventLogger(120, 1);
-	eventLogger.createLog();
+	Actor actor;
 
-	// TEMP put this here
-
-	// TODO put under some UI or something...
-	//LogParser parser;
-	//parser.parseLog("log_1539262127653.txt");
 	
-	//Actor actor;
-	//actor.doAnotherThing();
+	printf("F9: Create a log\nF10: End log\nF11: Replay log");
+
+	while (true)
+	{
+		// Create a log
+		if (GetAsyncKeyState(VK_F9) == -32767)
+		{
+			printf("\n");
+
+			eventLogger.createLog();
+
+		}
+
+		// Replay log
+		if (GetAsyncKeyState(VK_F11) == -32767)
+		{
+			printf("\n");
+			actor.replayLog("debuglog.txt");
+
+		}
+	}
+
+}
+
+void main(void)
+{
+	
+	
+
+	doTheUIThing();
+	
+
+
+
+
 
 	// Prevent the console from closing...
 	system("pause");
 }
+
+
+
+
 
 int main2()
 {

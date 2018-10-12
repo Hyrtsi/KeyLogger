@@ -18,16 +18,19 @@ struct vec2d
 
 enum Event_t
 {
-	EVENT_PRESS,
-	EVENT_RELEASE,
-	EVENT_MOVE
+	EVENT_NONE = 1 << 0,
+	EVENT_PRESS = 1 << 1,
+	EVENT_RELEASE = 1 << 2,
+	EVENT_MOVE = 1 << 3,
+	EVENT_WAIT = 1 << 4
 };
 
 struct Action
 {
 	Event_t e;
 	int keyCode;			// For mouse move, this is ignored
-	int timeUntilNextMs;
+	vec2 mousePos;			// For key press, this is ignored
+	int waitTimeMs;
 };
 
 /*

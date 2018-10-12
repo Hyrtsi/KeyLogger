@@ -22,7 +22,9 @@ void Logger::createLog(void)
 	auto currentUnixTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	auto beginTime = std::chrono::steady_clock::now();
 
-	std::string fileName = "log_" + std::to_string(currentUnixTime) + ".txt";
+	// TEMP: while debugging, this will save time...
+	//std::string fileName = "log_" + std::to_string(currentUnixTime) + ".txt";
+	std::string fileName = "debuglog.txt";
 	std::ofstream logFile(fileName);
 
 	int sleepTimeMs = (int)(1000.f / (float)_samplesPerSecond);
@@ -59,14 +61,15 @@ void Logger::createLog(void)
 		}
 
 		line.clear();
-		anyKeyChanged = logMouse(line) || logKeyboard(line);
+		anyKeyChanged = logMouse(line);
+		anyKeyChanged |= logKeyboard(line);
 
 		if (anyKeyChanged)
 		{
 			timeFromLastLine = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastSendTimeStamp).count();
 
 			// Log the duration since last ("sleep")
-			logFile << "S " << timeFromLastLine << "\n";
+			logFile << "S" << timeFromLastLine << "\n";
 
 			// Do not save the time from last line here...? That breaks the chronology
 			// Idea: event, sleep before the next, next event, ...

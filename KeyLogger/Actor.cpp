@@ -140,6 +140,17 @@ void Actor::mouseDemo(void)
 
 void Actor::replayLog(const std::string fileName)
 {
+	//int timeBeforeReplay = 3;
+	//
+	//printf("Replaying log %s after %d seconds...\n",
+	//	fileName.c_str(),
+	//	timeBeforeReplay);
+
+	//Sleep(timeBeforeReplay * 1000);
+
+	printf("- - - Beginning Replaying of Log %s\n",
+		fileName.c_str());
+
 	// (1) get data
 	// TODO:
 	// - this class owns logparser?
@@ -153,10 +164,57 @@ void Actor::replayLog(const std::string fileName)
 
 	// Could the vector be a list of pairs (action, wait) ?
 
-	std::vector<Action> actions;	// TODO get from function
-
+	printf("Parsing log\n");
 	LogParser p;
-	p.parseLog(fileName);
+	std::vector<Action> actions = p.parseLog(fileName);
+
+	std::vector<INPUT> inputs;
+
+	printf("Replaying log\n");
+	for (auto a : actions)
+	{
+		INPUT input;
+		memset(&input, 0, sizeof(INPUT));
+
+		switch (a.e)
+		{
+		case EVENT_NONE:
+			break;
+		case EVENT_PRESS:
+			// TODO key press has to be spammed until release...
+			//a.keyCode;
+			break;
+		case EVENT_RELEASE:
+			//a.keyCode;
+			break;
+		case EVENT_MOVE:
+			a.mousePos;
+			moveMouse(input, a.mousePos);
+			inputs.push_back(input);
+			break;
+		case EVENT_WAIT:
+
+			// Each time wait is reached,
+			// SendInput
+			// Flush buffer
+			// Wait
+
+			// TODO if sleep is first...
+			if (inputs.size() > 0)
+			{
+				SendInput(inputs.size(), &inputs[0], sizeof(INPUT));
+			}
+			Sleep(a.waitTimeMs);
+
+			inputs.clear();
+			break;
+		default:
+			break;
+		}
+
+
+	}
+
 
 }
 
@@ -210,17 +268,6 @@ void Actor::moveMouse(INPUT & input, vec2 point, bool leftUp, bool leftDown, boo
 	if (leftDown)	input.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
 	if (rightUp)	input.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
 	if (rightDown)	input.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
-
-	/*
-	MOUSEEVENTF_LEFTDOWN
-	MOUSEEVENTF_LEFTUP
-	MOUSEEVENTF_RIGHTDOWN
-	MOUSEEVENTF_RIGHTUP
-	*/
-
-	//input.ki.wVk = keyCode;
-	//input.ki.wScan = keyCode;
-	//input.ki.dwFlags = (pressed) ? 0 : KEYEVENTF_KEYUP;
 }
 
 /*
@@ -246,4 +293,30 @@ vec2 Actor::pointToGlobal(const vec2 & point)
 	};
 
 	return ret;
+}
+
+
+
+/*
+TEMP TODO USE
+*/
+void putKeystrokeDown(int times, int keyCode)
+{
+	INPUT ip = { 0 };
+	ip.type = INPUT_KEYBOARD;
+	ip.ki.wVk = keyCode;
+
+	std::vector<INPUT> ips;
+	ips.reserve((times * 2));
+
+	for (int i = 0; i < times; i++)
+	{
+		ip.ki.dwFlags = 0;
+		ips.push_back(ip);
+
+		ip.ki.dwFlags = KEYEVENTF_KEYUP;
+		ips.push_back(ip);
+	}
+
+	SendInput(ips.size(), &ips[0], sizeof(INPUT));
 }
