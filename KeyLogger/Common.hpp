@@ -18,11 +18,11 @@ struct vec2d
 
 enum Event_t
 {
-	EVENT_NONE = 1 << 0,
-	EVENT_PRESS = 1 << 1,
-	EVENT_RELEASE = 1 << 2,
-	EVENT_MOVE = 1 << 3,
-	EVENT_WAIT = 1 << 4
+	EVENT_NONE = 0,
+	EVENT_PRESS = 1,
+	EVENT_RELEASE = 2,
+	EVENT_MOVE =  3,
+	EVENT_WAIT =  4
 };
 
 struct Action

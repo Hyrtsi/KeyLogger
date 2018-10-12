@@ -8,54 +8,67 @@ Actor::Actor()
 
 void Actor::doThing(void)
 {
-	printf("Pressing down the button...\n");
-	Sleep(910);
 	INPUT input = { 0 };
-	input.type = INPUT_KEYBOARD;
-	input.ki.wVk = 'A';
-	input.ki.wScan = 'A';
-	input.ki.dwFlags = 0; // key down
+	int x = 300;
+	int y = 330;
+	vec2 point = { 1200, 330 };
 
-	// TODO one send is not enough! Send as many as needed...
+	//moveMouse(input, point, false, true, false, false);
+	//SendInput(1, &input, sizeof(INPUT));
+	//Sleep(31);
 
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
+	LogParser p;
+	std::vector<Action> actions = p.parseLog("debuglog.txt");
 
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
+	for (auto a : actions)
+	{
+		if (GetAsyncKeyState(VK_F12) == -32767)
+		{
+			break;
+		}
 
-	input.type = INPUT_KEYBOARD;
-	input.ki.wVk = 'A';
-	input.ki.wScan = 'A';
-	input.ki.dwFlags = KEYEVENTF_KEYUP;
-	SendInput(1, &input, sizeof(INPUT));
+		if (a.e == EVENT_PRESS)
+		{
+			//input = { 0 };
+			memset(&input, 0, sizeof(INPUT));
+			moveMouse(input, point, false, true, false, false);
+			SendInput(1, &input, sizeof(INPUT));
+			Sleep(31);
+		}
+
+		if (a.e == EVENT_RELEASE)
+		{
+			//input = { 0 };
+			memset(&input, 0, sizeof(INPUT));
+			moveMouse(input, point, true, false, false, false);
+			SendInput(1, &input, sizeof(INPUT));
+			Sleep(31);
+		}
+
+		if (a.e == EVENT_MOVE)
+		{
+			//input = { 0 };
+			memset(&input, 0, sizeof(INPUT));
+			moveMouse(input, a.mousePos, false, false, false, false);
+			SendInput(1, &input, sizeof(INPUT));
+		}
+
+		if (a.e == EVENT_WAIT)
+		{
+			Sleep(a.waitTimeMs);
+		}
+	}
+
+	//input = { 0 };
+	//moveMouse(input, point, true, false, false, false);
+	//SendInput(1, &input, sizeof(INPUT));
+	//Sleep(31);
+
 }
 
 void Actor::doAnotherThing(void)
 {
 	INPUT input = { 0 };
-
-	printf("Pressing\n");
-	Sleep(1000);
-	for (int i = 0; i < 10; ++i)
-	{
-		changeKeyState(input, 'A', true);
-		SendInput(1, &input, sizeof(INPUT));
-		Sleep(31);
-	}
-	return;
-
-	auto begin = std::chrono::steady_clock::now();
-	auto end = std::chrono::steady_clock::now();
-	auto timeElapsed = std::chrono::duration_cast<std::chrono::minutes>(end - begin).count();
-
-	//printf("Putting the key A down\n");
-	//Sleep(1000);
-	//changeKeyState(input, 'A', true);
-	
-	printf("Putting mouse left down for some time\n");
-	Sleep(1000);
-	// 0...65535
 	int x = 300;
 	int y = 330;
 	vec2 point = { 1200, 330 };
@@ -78,6 +91,13 @@ void Actor::doAnotherThing(void)
 		Sleep(31);
 
 		t += 0.005f;
+
+		if (GetAsyncKeyState(VK_F12) == -32767)
+		{
+			break;
+		}
+
+
 	}
 
 	printf("Finished: Point: %d %d\n", point.x, point.y);
@@ -140,31 +160,10 @@ void Actor::mouseDemo(void)
 
 void Actor::replayLog(const std::string fileName)
 {
-	//int timeBeforeReplay = 3;
-	//
-	//printf("Replaying log %s after %d seconds...\n",
-	//	fileName.c_str(),
-	//	timeBeforeReplay);
-
-	//Sleep(timeBeforeReplay * 1000);
-
-	printf("- - - Beginning Replaying of Log %s\n",
+	printf("- - - Preparing the replaying of log %s\n",
 		fileName.c_str());
 
-	// (1) get data
-	// TODO:
-	// - this class owns logparser?
-	// - read data here
-	// - save to some vector(s)
-
-
-	// Data is a list of actions: event or wait
-	// event is press or release or move
-	// wait is sleep ms before next event
-
-	// Could the vector be a list of pairs (action, wait) ?
-
-	printf("Parsing log\n");
+	printf("Parsing log before replay\n");
 	LogParser p;
 	std::vector<Action> actions = p.parseLog(fileName);
 
@@ -174,23 +173,44 @@ void Actor::replayLog(const std::string fileName)
 	for (auto a : actions)
 	{
 		INPUT input;
-		memset(&input, 0, sizeof(INPUT));
+
+		if (GetAsyncKeyState(VK_F12) == -32767)
+		{
+			printf("Got F12: breaking from log replay\n");
+			// TODO release all unreleased keys...
+			moveMouse(input, a.mousePos, true, false, false, false);
+			SendInput(1, &input, sizeof(INPUT));
+			return;
+		}
+
 
 		switch (a.e)
 		{
 		case EVENT_NONE:
 			break;
 		case EVENT_PRESS:
-			// TODO key press has to be spammed until release...
-			//a.keyCode;
+			// TEMP notice that both left and right act as left
+			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			{
+				moveMouse(input, a.mousePos, false, true, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+				//inputs.push_back(input);
+			}
 			break;
 		case EVENT_RELEASE:
-			//a.keyCode;
+			// TEMP notice that both left and right act as left
+			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			{
+				moveMouse(input, a.mousePos, true, false, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+				//inputs.push_back(input);
+			}
 			break;
 		case EVENT_MOVE:
 			a.mousePos;
 			moveMouse(input, a.mousePos);
-			inputs.push_back(input);
+			SendInput(1, &input, sizeof(INPUT));
+			//inputs.push_back(input);
 			break;
 		case EVENT_WAIT:
 
@@ -200,19 +220,17 @@ void Actor::replayLog(const std::string fileName)
 			// Wait
 
 			// TODO if sleep is first...
-			if (inputs.size() > 0)
-			{
-				SendInput(inputs.size(), &inputs[0], sizeof(INPUT));
-			}
+			//if (inputs.size() > 0)
+			//{
+			//	SendInput(inputs.size(), &inputs[0], sizeof(INPUT));
+			//}
+			//inputs.clear();
 			Sleep(a.waitTimeMs);
-
-			inputs.clear();
 			break;
 		default:
 			break;
 		}
-
-
+		Sleep(31);
 	}
 
 
@@ -268,6 +286,19 @@ void Actor::moveMouse(INPUT & input, vec2 point, bool leftUp, bool leftDown, boo
 	if (leftDown)	input.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
 	if (rightUp)	input.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
 	if (rightDown)	input.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
+}
+
+
+void Actor::moveMouse(INPUT & input, vec2 point)
+{
+	point = pointToGlobal(point);
+
+	input.type = INPUT_MOUSE;
+	input.mi.dx = point.x;
+	input.mi.dy = point.y;
+	input.mi.mouseData = 0;
+	input.mi.dwFlags |= (MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE);
+	input.mi.time = 0;
 }
 
 /*

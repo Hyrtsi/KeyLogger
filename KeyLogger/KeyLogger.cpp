@@ -167,8 +167,9 @@ void doTheUIThing(void)
 	Logger eventLogger(120, 1);
 	Actor actor;
 
-	
-	printf("F9: Create a log\nF10: End log\nF11: Replay log");
+	printf("$-$-$ \tWelcome to AurumBot\t $-$-$\n\n");
+
+	printf("F9: Create a log\nF10: End log\nF11: Replay log\nF12: Quit\n");
 
 	while (true)
 	{
@@ -176,17 +177,15 @@ void doTheUIThing(void)
 		if (GetAsyncKeyState(VK_F9) == -32767)
 		{
 			printf("\n");
-
 			eventLogger.createLog();
-
 		}
 
 		// Replay log
 		if (GetAsyncKeyState(VK_F11) == -32767)
 		{
 			printf("\n");
-			actor.replayLog("debuglog.txt");
-
+			//actor.replayLog("debuglog.txt");
+			actor.doThing();
 		}
 	}
 
@@ -194,15 +193,7 @@ void doTheUIThing(void)
 
 void main(void)
 {
-	
-	
-
 	doTheUIThing();
-	
-
-
-
-
 
 	// Prevent the console from closing...
 	system("pause");

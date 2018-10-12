@@ -20,8 +20,8 @@ private:
 	void changeKeyState(INPUT& input, int keyCode, bool pressed);
 	void pressAndReleaseKey(INPUT& input, int keyCode, int durationMs);
 	
-	void moveMouse(INPUT & input, vec2 point, bool leftUp = false, bool leftDown = false, bool rightUp = false, bool rightDown = false);
-
+	void moveMouse(INPUT & input, vec2 point, bool leftUp, bool leftDown, bool rightUp, bool rightDown);
+	void moveMouse(INPUT & input, vec2 point);
 	vec2 pointToGlobal(const vec2& point);
 
 
