@@ -12,6 +12,8 @@ void LogParser::parseLog(const std::string fileName)
 	std::string line;
 	std::ifstream myfile(fileName);
 
+	std::vector<Action> actions;
+
 	if (myfile.is_open())
 	{
 		int nLines = 0;
@@ -54,14 +56,10 @@ void LogParser::parseLog(const std::string fileName)
 				}
 				else
 				{
-					printf("ERROR while parsing string! Unexpected format... String: %s\n", results[i].c_str());
+					printf("ERROR while parsing string! Unexpected format... String: %s\n",
+						results[i].c_str());
 				}
-				
 			}
-
-
-
-
 
 
 			// We know the last one is always timestamp

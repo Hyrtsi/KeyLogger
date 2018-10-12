@@ -33,11 +33,12 @@ void Logger::createLog(void)
 	printf("Beginning logging to file %s\n",
 		fileName.c_str());
 
-	//auto lastTimeStamp = std::chrono::steady_clock::now();
 	auto timeStamp = std::chrono::steady_clock::now();
 	auto lastSendTimeStamp = timeStamp;
-	int totalElapsedTime = 0;
-	int timeSinceLastSendMs = 0;
+	int totalElapsedTimeSec = 0;
+	int totalElapsedTimeMin = 0;
+	int timeFromLastLine = 0;
+	int processingTimeTaken = 0;
 
 	std::string line = "";
 	GetCursorPos(&_mousePos);
@@ -50,70 +51,58 @@ void Logger::createLog(void)
 		}
 
 		timeStamp = std::chrono::steady_clock::now();
-		totalElapsedTime = std::chrono::duration_cast<std::chrono::minutes>(timeStamp - beginTime).count();
-		if (totalElapsedTime >= _maxTimeToLogMinutes)
+		totalElapsedTimeMin = std::chrono::duration_cast<std::chrono::minutes>(timeStamp - beginTime).count();
+		if (totalElapsedTimeMin >= _maxTimeToLogMinutes)
 		{
-			printf("Elapsed time %d > max time %d. Shutting down logging.\n", totalElapsedTime, _maxTimeToLogMinutes);
+			printf("Elapsed time %d (sec) > max time %d (min). Shutting down logging.\n", totalElapsedTimeMin, _maxTimeToLogMinutes);
 			break;
 		}
 
-		// LOG HERE
-
 		line.clear();
-
-		POINT p;
-		GetCursorPos(&p);
-		
-		if (p.x != _mousePos.x || p.y != _mousePos.y)
-		{
-			line += "M" + std::to_string(p.x) + ',' + std::to_string(p.y);
-			anyKeyChanged = true;
-		}
-
-		_mousePos = p;
-
-		for (auto& key : _keysToTrack)
-		{
-			if (keyPressed(key.code) != key.status)
-			{
-				key.status = !key.status;
-
-				std::string pressReleaseChar = "P";
-				if (key.status == false)
-				{
-					pressReleaseChar = "R";
-				}
-
-				if (anyKeyChanged) line += " ";
-
-				line += pressReleaseChar + std::to_string(key.code);
-
-				anyKeyChanged = true;
-			}
-		}
+		anyKeyChanged = logMouse(line) || logKeyboard(line);
 
 		if (anyKeyChanged)
 		{
-			int timeFromLastLine = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastSendTimeStamp).count();
-			line += " " + std::to_string(timeFromLastLine);
-			line += "\n";
-			logFile << line.c_str();
+			timeFromLastLine = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastSendTimeStamp).count();
+
+			// Log the duration since last ("sleep")
+			logFile << "S " << timeFromLastLine << "\n";
+
+			// Do not save the time from last line here...? That breaks the chronology
+			// Idea: event, sleep before the next, next event, ...
+			//line += " " + std::to_string(timeFromLastLine);
+			
+			logFile << line.c_str() << "\n";
 			anyKeyChanged = false;
 
 			lastSendTimeStamp = std::chrono::steady_clock::now();
+
+			++lineCount;
 		}
 
-		Sleep(sleepTimeMs);
-		// Finished logging
+		// TEMP TEST
+		// TODO no negative numbers please
+		processingTimeTaken = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStamp).count();
 
-		++lineCount;
-	}
+		//printf("Processing took %d total sleep %d = %d\n",
+		//	processingTimeTaken, sleepTimeMs, sleepTimeMs - processingTimeTaken);
 
-	auto hours = totalElapsedTime / 3600;
-	totalElapsedTime %= 3600;
-	auto minutes = totalElapsedTime / 60;
-	totalElapsedTime %= 60;
-	auto seconds = totalElapsedTime;
+		Sleep(sleepTimeMs - processingTimeTaken);
+
+
+		//Sleep(sleepTimeMs);
+
+
+	} // Finished logging
+
+	// We may use the last timestamp
+	totalElapsedTimeSec = std::chrono::duration_cast<std::chrono::seconds>(timeStamp - beginTime).count();
+
+	auto hours = totalElapsedTimeSec / 3600;
+	totalElapsedTimeSec %= 3600;
+	auto minutes = totalElapsedTimeSec / 60;
+	totalElapsedTimeSec %= 60;
+	auto seconds = totalElapsedTimeSec;
 
 	logFile << "***\n";
 	logFile << "Elapsed time: " << hours << " hours " << minutes << " minutes " << seconds << " seconds\n";
@@ -126,4 +115,50 @@ void Logger::createLog(void)
 bool Logger::keyPressed(int key)
 {
 	return(GetKeyState(key) < 0);
+}
+
+bool Logger::logMouse(std::string & line)
+{
+	bool anyKeyChanged = false;
+
+	POINT p;
+	GetCursorPos(&p);
+
+	if (p.x != _mousePos.x || p.y != _mousePos.y)
+	{
+		line += 'M' + std::to_string(p.x) + ',' + std::to_string(p.y);
+		anyKeyChanged = true;
+	}
+
+	_mousePos = p;
+
+	return anyKeyChanged;
+}
+
+bool Logger::logKeyboard(std::string & line)
+{
+	bool anyKeyChanged = false;
+
+	for (auto& key : _keysToTrack)
+	{
+		if (keyPressed(key.code) != key.status)
+		{
+			key.status = !key.status;
+
+			std::string pressReleaseChar = "P";
+			if (key.status == false)
+			{
+				pressReleaseChar = "R";
+			}
+
+			// Add space as delimiter if there already is something written
+			if (line.length() > 0) line += " ";
+
+			line += pressReleaseChar + std::to_string(key.code);
+
+			anyKeyChanged = true;
+		}
+	}
+
+	return anyKeyChanged;
 }

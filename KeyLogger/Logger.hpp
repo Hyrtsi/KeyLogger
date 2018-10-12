@@ -22,6 +22,8 @@ private:
 
 	bool keyPressed(int key);
 
+	bool logMouse(std::string& line);
+	bool logKeyboard(std::string& line);
 
 	//std::vector<int>	_keysToTrack;
 	//std::vector<bool>	_keyStatus;
