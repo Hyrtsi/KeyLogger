@@ -14,6 +14,7 @@ public:
 
 private:
 	void changeKeyState(INPUT& input, int keyCode, bool pressed);
+	void changeKeyStateHw(INPUT& input, int keyCode, bool pressed);
 	void pressAndReleaseKey(INPUT& input, int keyCode, int durationMs);
 	
 	void moveMouse(INPUT & input, vec2 point, bool leftUp, bool leftDown, bool rightUp, bool rightDown);

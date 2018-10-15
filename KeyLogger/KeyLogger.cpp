@@ -163,7 +163,7 @@ void CreateLogEntry(std::ofstream& logFile)
 
 void doTheUIThing(void)
 {
-	Logger eventLogger(120, 1);
+	Logger eventLogger(120, 15);
 	Actor actor;
 
 	printf("$-$-$ \tWelcome to AurumBot\t $-$-$\n\n");

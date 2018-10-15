@@ -15,29 +15,42 @@ void Actor::replayFromFile(const std::string fileName)
 
 	LogParser p;
 	std::vector<Action> actions = p.parseLog("debuglog.txt");
-
+	bool insideBounds = false;
 	for (auto a : actions)
 	{
 		if (GetAsyncKeyState(VK_F12) == -32767)
 		{
+			printf("Got F12: Breaking from playback...\n");
 			break;
 		}
 
 		// TODO
 		// Keyboard press and hold most likely will not work
 
-		if (a.e == EVENT_PRESS)
+		// TEMP
+		// Click only if inside some pre-defined game window area
+		insideBounds = (a.mousePos.x > 970 && a.mousePos.x < 1905
+			&& a.mousePos.y > 35 && a.mousePos.y < 1025);
+
+		// TEMP TEST
+		if (a.keyCode == 32)
+		{
+			a.keyCode = 57;
+		}
+
+
+		if (a.e == EVENT_PRESS && insideBounds)
 		{
 			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
 			{
-				//memset(&input, 0, sizeof(INPUT));
+				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, false, true, false, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 			else
 			{
-				//TODO TEST
-				changeKeyState(input, a.keyCode, true);
+				//TODO TEST Hardware
+				changeKeyStateHw(input, a.keyCode, true);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 		}
@@ -46,14 +59,14 @@ void Actor::replayFromFile(const std::string fileName)
 		{
 			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
 			{
-				//memset(&input, 0, sizeof(INPUT));
+				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, true, false, false, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 			else
 			{
-				// TODO TEST
-				changeKeyState(input, a.keyCode, false);
+				// TODO TEST hardware
+				changeKeyStateHw(input, a.keyCode, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 		}
@@ -68,6 +81,7 @@ void Actor::replayFromFile(const std::string fileName)
 
 		if (a.e == EVENT_WAIT)
 		{
+			printf("Sleeping %d ms\n", a.waitTimeMs);
 			Sleep(a.waitTimeMs);
 		}
 	}
@@ -198,6 +212,14 @@ void Actor::changeKeyState(INPUT& input, int keyCode, bool pressed)
 	input.ki.wVk = keyCode;
 	input.ki.wScan = keyCode;
 	input.ki.dwFlags = (pressed) ? 0 : KEYEVENTF_KEYUP;
+}
+
+void Actor::changeKeyStateHw(INPUT& input, int keyCode, bool pressed)
+{
+	input.type = INPUT_KEYBOARD;
+	input.ki.wVk = 0;
+	input.ki.wScan = keyCode;
+	input.ki.dwFlags = (pressed) ? KEYEVENTF_SCANCODE : (KEYEVENTF_KEYUP | KEYEVENTF_SCANCODE);
 }
 
 /*
