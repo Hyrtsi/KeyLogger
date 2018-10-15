@@ -6,7 +6,7 @@ Actor::Actor()
 	_screenSize = { 1920.0, 1080.0 };
 }
 
-void Actor::doThing(void)
+void Actor::replayFromFile(const std::string fileName)
 {
 	INPUT input = { 0 };
 	POINT mousePos;
@@ -23,24 +23,45 @@ void Actor::doThing(void)
 			break;
 		}
 
+		// TODO
+		// Keyboard press and hold most likely will not work
+
 		if (a.e == EVENT_PRESS)
 		{
-			memset(&input, 0, sizeof(INPUT));
-			moveMouse(input, point, false, true, false, false);
-			SendInput(1, &input, sizeof(INPUT));
+			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			{
+				//memset(&input, 0, sizeof(INPUT));
+				moveMouse(input, point, false, true, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+			}
+			else
+			{
+				//TODO TEST
+				changeKeyState(input, a.keyCode, true);
+				SendInput(1, &input, sizeof(INPUT));
+			}
 		}
 
 		if (a.e == EVENT_RELEASE)
 		{
-			memset(&input, 0, sizeof(INPUT));
-			moveMouse(input, point, true, false, false, false);
-			SendInput(1, &input, sizeof(INPUT));
+			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			{
+				//memset(&input, 0, sizeof(INPUT));
+				moveMouse(input, point, true, false, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+			}
+			else
+			{
+				// TODO TEST
+				changeKeyState(input, a.keyCode, false);
+				SendInput(1, &input, sizeof(INPUT));
+			}
 		}
 
 		if (a.e == EVENT_MOVE)
 		{
 			point = a.mousePos;
-			memset(&input, 0, sizeof(INPUT));
+			//memset(&input, 0, sizeof(INPUT));
 			moveMouse(input, point, false, false, false, false);
 			SendInput(1, &input, sizeof(INPUT));
 		}
@@ -51,9 +72,11 @@ void Actor::doThing(void)
 		}
 	}
 
+	printf("Finished playback\n");
+
 }
 
-void Actor::doAnotherThing(void)
+void Actor::mouseLissajousDrawDemo(void)
 {
 	INPUT input = { 0 };
 	int x = 300;
@@ -88,50 +111,6 @@ void Actor::doAnotherThing(void)
 	SendInput(1, &input, sizeof(INPUT));
 	Sleep(31);
 }
-
-void Actor::test(void)
-{
-	LogParser p;
-	std::vector<Action> actions = p.parseLog("debuglog.txt");
-
-	std::vector<vec2> mouseLocations;
-	for (auto a : actions)
-	{
-		if (a.e == EVENT_MOVE)
-		{
-			mouseLocations.push_back(a.mousePos);
-		}
-	}
-
-	INPUT input = { 0 };
-	vec2 point = mouseLocations[0];
-
-	moveMouse(input, point, false, true, false, false);
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
-
-	for (int i = 0; i < min(300, mouseLocations.size()); ++i)
-	{
-		input = { 0 };
-		point = mouseLocations[i];
-
-		moveMouse(input, point, false, false, false, false);
-
-		SendInput(1, &input, sizeof(INPUT));
-		Sleep(31);
-
-		if (GetAsyncKeyState(VK_F12) == -32767)
-		{
-			break;
-		}
-	}
-
-	input = { 0 };
-	moveMouse(input, point, true, false, false, false);
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
-}
-
 
 void Actor::replayLog(const std::string fileName)
 {
@@ -298,12 +277,10 @@ vec2 Actor::pointToGlobal(const vec2 & point)
 	return ret;
 }
 
-
-
 /*
 TEMP TODO USE
 */
-void putKeystrokeDown(int times, int keyCode)
+void Actor::putKeystrokeDown(int times, int keyCode)
 {
 	INPUT ip = { 0 };
 	ip.type = INPUT_KEYBOARD;

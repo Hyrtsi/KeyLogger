@@ -161,7 +161,6 @@ void CreateLogEntry(std::ofstream& logFile)
 	*/
 }
 
-
 void doTheUIThing(void)
 {
 	Logger eventLogger(120, 1);
@@ -184,11 +183,9 @@ void doTheUIThing(void)
 		if (GetAsyncKeyState(VK_F11) == -32767)
 		{
 			printf("\n");
-			//actor.replayLog("debuglog.txt");
-			actor.doThing();
+			actor.replayFromFile("debuglog.txt");
 		}
 	}
-
 }
 
 void main(void)
