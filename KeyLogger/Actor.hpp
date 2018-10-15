@@ -16,6 +16,7 @@ public:
 
 	void replayLog(const std::string fileName);
 
+	void test(void);
 private:
 	void changeKeyState(INPUT& input, int keyCode, bool pressed);
 	void pressAndReleaseKey(INPUT& input, int keyCode, int durationMs);

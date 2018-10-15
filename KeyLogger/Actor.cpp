@@ -9,13 +9,9 @@ Actor::Actor()
 void Actor::doThing(void)
 {
 	INPUT input = { 0 };
-	int x = 300;
-	int y = 330;
-	vec2 point = { 1200, 330 };
-
-	//moveMouse(input, point, false, true, false, false);
-	//SendInput(1, &input, sizeof(INPUT));
-	//Sleep(31);
+	POINT mousePos;
+	GetCursorPos(&mousePos);
+	vec2 point = { mousePos.x, mousePos.y }; 
 
 	LogParser p;
 	std::vector<Action> actions = p.parseLog("debuglog.txt");
@@ -29,27 +25,23 @@ void Actor::doThing(void)
 
 		if (a.e == EVENT_PRESS)
 		{
-			//input = { 0 };
 			memset(&input, 0, sizeof(INPUT));
 			moveMouse(input, point, false, true, false, false);
 			SendInput(1, &input, sizeof(INPUT));
-			Sleep(31);
 		}
 
 		if (a.e == EVENT_RELEASE)
 		{
-			//input = { 0 };
 			memset(&input, 0, sizeof(INPUT));
 			moveMouse(input, point, true, false, false, false);
 			SendInput(1, &input, sizeof(INPUT));
-			Sleep(31);
 		}
 
 		if (a.e == EVENT_MOVE)
 		{
-			//input = { 0 };
+			point = a.mousePos;
 			memset(&input, 0, sizeof(INPUT));
-			moveMouse(input, a.mousePos, false, false, false, false);
+			moveMouse(input, point, false, false, false, false);
 			SendInput(1, &input, sizeof(INPUT));
 		}
 
@@ -58,11 +50,6 @@ void Actor::doThing(void)
 			Sleep(a.waitTimeMs);
 		}
 	}
-
-	//input = { 0 };
-	//moveMouse(input, point, true, false, false, false);
-	//SendInput(1, &input, sizeof(INPUT));
-	//Sleep(31);
 
 }
 
@@ -78,13 +65,11 @@ void Actor::doAnotherThing(void)
 	Sleep(31);
 
 	float t = 0.f;
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		input = { 0 };
 		point.x = x + (int)(100 * sin(20.5f * t));
 		point.y = y + (int)(100 * cos(50.f * t));
-
-		//printf("Point: %d %d\n", point.x, point.y);
 
 		moveMouse(input, point, false, false, false, false);
 		SendInput(1, &input, sizeof(INPUT));
@@ -96,67 +81,57 @@ void Actor::doAnotherThing(void)
 		{
 			break;
 		}
-
-
 	}
-
-	printf("Finished: Point: %d %d\n", point.x, point.y);
 
 	input = { 0 };
 	moveMouse(input, point, true, false, false, false);
 	SendInput(1, &input, sizeof(INPUT));
 	Sleep(31);
-
-	/*
-	changeKeyState(input, 'a', true);
-	Sleep(31);
-
-	changeKeyState(input, 'a', false);
-	Sleep(31);
-	*/
 }
 
-void Actor::mouseDemo(void)
+void Actor::test(void)
 {
+	LogParser p;
+	std::vector<Action> actions = p.parseLog("debuglog.txt");
+
+	std::vector<vec2> mouseLocations;
+	for (auto a : actions)
+	{
+		if (a.e == EVENT_MOVE)
+		{
+			mouseLocations.push_back(a.mousePos);
+		}
+	}
+
 	INPUT input = { 0 };
-	int x = 1000;
-	int y = 1000;
+	vec2 point = mouseLocations[0];
 
-	printf("Beginning mouse demo in 2 seconds\n");
-	Sleep(2000);
-	printf("Start\n");
-	/*
-	for (int i = 0; i < 10; ++i)
+	moveMouse(input, point, false, true, false, false);
+	SendInput(1, &input, sizeof(INPUT));
+	Sleep(31);
+
+	for (int i = 0; i < min(300, mouseLocations.size()); ++i)
 	{
 		input = { 0 };
-		input.type = INPUT_MOUSE;
-		input.mi.dx = 10;
-		input.mi.dy = 10;
-		input.mi.dwFlags |= MOUSEEVENTF_MOVE;
+		point = mouseLocations[i];
+
+		moveMouse(input, point, false, false, false, false);
 
 		SendInput(1, &input, sizeof(INPUT));
 		Sleep(31);
-	}
-	return;
-	*/
-	/*
-	for (int i = 0; i < 200; ++i)
-	{
-		input = { 0 };
-		input.type = INPUT_MOUSE;
-		input.mi.dx = x;
-		input.mi.dy = y;
-		input.mi.dwFlags |= (MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE);
 
-		x += 200;
-		y += 200;
-
-		SendInput(1, &input, sizeof(INPUT));
-		Sleep(31);
+		if (GetAsyncKeyState(VK_F12) == -32767)
+		{
+			break;
+		}
 	}
-	*/
-	printf("End\n");
+
+	input = { 0 };
+	moveMouse(input, point, true, false, false, false);
+	SendInput(1, &input, sizeof(INPUT));
+	Sleep(31);
 }
+
 
 void Actor::replayLog(const std::string fileName)
 {
@@ -182,7 +157,6 @@ void Actor::replayLog(const std::string fileName)
 			SendInput(1, &input, sizeof(INPUT));
 			return;
 		}
-
 
 		switch (a.e)
 		{
@@ -232,8 +206,6 @@ void Actor::replayLog(const std::string fileName)
 		}
 		Sleep(31);
 	}
-
-
 }
 
 /*
@@ -350,4 +322,46 @@ void putKeystrokeDown(int times, int keyCode)
 	}
 
 	SendInput(ips.size(), &ips[0], sizeof(INPUT));
+}
+
+void Actor::mouseDemo(void)
+{
+	INPUT input = { 0 };
+	int x = 1000;
+	int y = 1000;
+
+	printf("Beginning mouse demo in 2 seconds\n");
+	Sleep(2000);
+	printf("Start\n");
+	/*
+	for (int i = 0; i < 10; ++i)
+	{
+	input = { 0 };
+	input.type = INPUT_MOUSE;
+	input.mi.dx = 10;
+	input.mi.dy = 10;
+	input.mi.dwFlags |= MOUSEEVENTF_MOVE;
+
+	SendInput(1, &input, sizeof(INPUT));
+	Sleep(31);
+	}
+	return;
+	*/
+	/*
+	for (int i = 0; i < 200; ++i)
+	{
+	input = { 0 };
+	input.type = INPUT_MOUSE;
+	input.mi.dx = x;
+	input.mi.dy = y;
+	input.mi.dwFlags |= (MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE);
+
+	x += 200;
+	y += 200;
+
+	SendInput(1, &input, sizeof(INPUT));
+	Sleep(31);
+	}
+	*/
+	printf("End\n");
 }
