@@ -8,7 +8,7 @@ Logger::Logger(int samplesPerSecond = 60, int maxTimeToLogMinutes = 60)
 
 	auto keys = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
 		VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
-		49,50,51 };
+		49,50,51, VK_ESCAPE };
 
 	for (auto key : keys)
 	{
