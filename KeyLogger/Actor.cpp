@@ -32,19 +32,18 @@ void Actor::replayFromFile(const std::string fileName)
 		insideBounds = (a.mousePos.x > 970 && a.mousePos.x < 1905
 			&& a.mousePos.y > 35 && a.mousePos.y < 1025);
 
-		// TEMP TEST
-		if (a.keyCode == 32)
-		{
-			a.keyCode = 57;
-		}
-
-
 		if (a.e == EVENT_PRESS && insideBounds)
 		{
-			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			if (a.keyCode == VK_LBUTTON)
 			{
 				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, false, true, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+			}
+			else if (a.keyCode == VK_RBUTTON)
+			{
+				memset(&input, 0, sizeof(INPUT));
+				moveMouse(input, point, false, false, false, true);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 			else
@@ -57,10 +56,16 @@ void Actor::replayFromFile(const std::string fileName)
 
 		if (a.e == EVENT_RELEASE)
 		{
-			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
+			if (a.keyCode == VK_LBUTTON)
 			{
 				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, true, false, false, false);
+				SendInput(1, &input, sizeof(INPUT));
+			}
+			else if (a.keyCode == VK_RBUTTON)
+			{
+				memset(&input, 0, sizeof(INPUT));
+				moveMouse(input, point, false, false, true, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 			else
@@ -81,7 +86,11 @@ void Actor::replayFromFile(const std::string fileName)
 
 		if (a.e == EVENT_WAIT)
 		{
-			printf("Sleeping %d ms\n", a.waitTimeMs);
+			if (a.waitTimeMs > 10000)
+			{
+				printf("Sleeping %d ms\n", a.waitTimeMs);
+			}
+
 			Sleep(a.waitTimeMs);
 		}
 	}
