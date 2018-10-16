@@ -6,11 +6,14 @@ Logger::Logger(int samplesPerSecond = 60, int maxTimeToLogMinutes = 60)
 	_samplesPerSecond = samplesPerSecond;
 	_maxTimeToLogMinutes = maxTimeToLogMinutes;
 
-	// Sorry but virtual does not work in runescape
-	//auto keys = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
-	//	VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
-	//	49,50,51, VK_ESCAPE };
+	// TODO these have been added to common
+	// If they work, remove these from here...
 
+	auto keys = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
+		VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
+		49,50,51, VK_ESCAPE };
+
+	/*
 	auto keys =
 	{
 		VK_LBUTTON,		// Virtual for mouse is ok
@@ -23,9 +26,11 @@ Logger::Logger(int samplesPerSecond = 60, int maxTimeToLogMinutes = 60)
 		49,
 		50,
 		51,
-		1				// Escape
+		// TODO this does not work: conflicts with mouse buttons
+		//1				// Escape
 	};
-	
+	*/
+
 	for (auto key : keys)
 	{
 		Key keyElem = { key, false };

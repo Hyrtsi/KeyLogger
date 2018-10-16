@@ -49,6 +49,7 @@ void Actor::replayFromFile(const std::string fileName)
 			else
 			{
 				//TODO TEST Hardware
+				int hwCode = virtualToHardware(a.keyCode);
 				changeKeyStateHw(input, a.keyCode, true);
 				SendInput(1, &input, sizeof(INPUT));
 			}
@@ -99,6 +100,7 @@ void Actor::replayFromFile(const std::string fileName)
 
 }
 
+/*
 void Actor::mouseLissajousDrawDemo(void)
 {
 	INPUT input = { 0 };
@@ -209,6 +211,7 @@ void Actor::replayLog(const std::string fileName)
 		Sleep(31);
 	}
 }
+*/
 
 /*
 This is a test
@@ -308,9 +311,39 @@ vec2 Actor::pointToGlobal(const vec2 & point)
 	return ret;
 }
 
+int Actor::virtualToHardware(int virtualCode)
+{
+	switch (virtualCode)
+	{
+	case VK_SPACE:
+		return 57;
+	case VK_LEFT:
+		return 75;
+	case VK_RIGHT:
+		return 77;
+	case VK_UP:
+		return 72;
+	case VK_DOWN:
+		return 80;
+	case VK_ESCAPE:
+		return 1;
+	case 49:
+		return 2;
+	case 50:
+		return 3;
+	case 51:
+		return 4;
+	default:
+		printf("ERROR: invalid virtual key code %d\n", virtualCode);
+		return 0;
+		break;
+	}
+}
+
 /*
 TEMP TODO USE
 */
+/*
 void Actor::putKeystrokeDown(int times, int keyCode)
 {
 	INPUT ip = { 0 };
@@ -341,7 +374,7 @@ void Actor::mouseDemo(void)
 	printf("Beginning mouse demo in 2 seconds\n");
 	Sleep(2000);
 	printf("Start\n");
-	/*
+	
 	for (int i = 0; i < 10; ++i)
 	{
 	input = { 0 };
@@ -354,8 +387,8 @@ void Actor::mouseDemo(void)
 	Sleep(31);
 	}
 	return;
-	*/
-	/*
+	
+	
 	for (int i = 0; i < 200; ++i)
 	{
 	input = { 0 };
@@ -370,6 +403,7 @@ void Actor::mouseDemo(void)
 	SendInput(1, &input, sizeof(INPUT));
 	Sleep(31);
 	}
-	*/
+	
 	printf("End\n");
 }
+*/

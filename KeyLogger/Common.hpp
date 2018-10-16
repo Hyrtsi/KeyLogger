@@ -42,3 +42,31 @@ struct Action_t
 };
 */
 
+/*
+// TODO if used here, include windows...
+auto g_virtualKeyCodes =
+{
+	VK_SPACE,
+	VK_LEFT,
+	VK_RIGHT,
+	VK_UP,
+	VK_DOWN,
+	VK_ESCAPE,
+	49,			// '1'
+	50,			// '2'
+	51,			// '3'
+};
+
+auto g_hardwareKeyCodes =
+{
+	57,				// Space
+	75,				// Left arrow
+	77,				// Right arrow
+	72,				// Up arrow
+	80,				// Down arrow
+	1,				// Escape
+	2,				// '1'
+	3,				// '2'
+	4,				// '3'
+};
+*/

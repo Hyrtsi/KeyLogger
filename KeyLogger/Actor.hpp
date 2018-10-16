@@ -20,14 +20,14 @@ private:
 	void moveMouse(INPUT & input, vec2 point, bool leftUp, bool leftDown, bool rightUp, bool rightDown);
 	void moveMouse(INPUT & input, vec2 point);
 	vec2 pointToGlobal(const vec2& point);
+	int virtualToHardware(int virtualCode);
 
+	/*
 	void mouseLissajousDrawDemo(void);
 	void putKeystrokeDown(int times, int keyCode);
-
 	void mouseDemo(void);
-
 	void replayLog(const std::string fileName);
-
+	*/
 
 	// How many milliseconds the button will be down at minimum
 	int		_sampleLengthMs;
