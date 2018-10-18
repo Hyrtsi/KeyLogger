@@ -39,3 +39,9 @@ TODO
 - tests maybe
 - plug and play examples
 - UI with imgui
+
+## Lessons learned
+
+- Win32Api documentation is sometimes very good
+- You might want to emulate the keypresses at hardware level
+- If you have a certain layout (such as US Dvorak), the key press detecting functions suffer...
