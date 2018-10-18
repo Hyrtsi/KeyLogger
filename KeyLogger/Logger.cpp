@@ -9,27 +9,9 @@ Logger::Logger(int samplesPerSecond = 60, int maxTimeToLogMinutes = 60)
 	// TODO these have been added to common
 	// If they work, remove these from here...
 
-	auto keys = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
+	int keys[] = { VK_LBUTTON, VK_RBUTTON, VK_SPACE,
 		VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
-		49,50,51, VK_ESCAPE };
-
-	/*
-	auto keys =
-	{
-		VK_LBUTTON,		// Virtual for mouse is ok
-		VK_RBUTTON,
-		57,				// Space
-		75,				// Left arrow
-		77,				// Right arrow
-		72,				// Up arrow
-		80,				// Right arrow
-		49,
-		50,
-		51,
-		// TODO this does not work: conflicts with mouse buttons
-		//1				// Escape
-	};
-	*/
+		'1', '2', '3', VK_ESCAPE };
 
 	for (auto key : keys)
 	{

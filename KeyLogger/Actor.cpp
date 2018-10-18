@@ -24,23 +24,22 @@ void Actor::replayFromFile(const std::string fileName)
 			break;
 		}
 
-		// TODO
-		// Keyboard press and hold most likely will not work
-
 		// TEMP
 		// Click only if inside some pre-defined game window area
-		insideBounds = (a.mousePos.x > 970 && a.mousePos.x < 1905
-			&& a.mousePos.y > 35 && a.mousePos.y < 1025);
 
-		if (a.e == EVENT_PRESS && insideBounds)
+		if (a.e == EVENT_PRESS)
 		{
-			if (a.keyCode == VK_LBUTTON)
+
+			insideBounds = (a.mousePos.x > 970 && a.mousePos.x < 1905
+				&& a.mousePos.y > 35 && a.mousePos.y < 1025);
+
+			if (a.keyCode == VK_LBUTTON && insideBounds)
 			{
 				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, false, true, false, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
-			else if (a.keyCode == VK_RBUTTON)
+			else if (a.keyCode == VK_RBUTTON && insideBounds)
 			{
 				memset(&input, 0, sizeof(INPUT));
 				moveMouse(input, point, false, false, false, true);
@@ -48,9 +47,7 @@ void Actor::replayFromFile(const std::string fileName)
 			}
 			else
 			{
-				//TODO TEST Hardware
-				int hwCode = virtualToHardware(a.keyCode);
-				changeKeyStateHw(input, a.keyCode, true);
+				changeKeyState(input, a.keyCode, true);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 		}
@@ -71,8 +68,7 @@ void Actor::replayFromFile(const std::string fileName)
 			}
 			else
 			{
-				// TODO TEST hardware
-				changeKeyStateHw(input, a.keyCode, false);
+				changeKeyState(input, a.keyCode, false);
 				SendInput(1, &input, sizeof(INPUT));
 			}
 		}
@@ -99,119 +95,6 @@ void Actor::replayFromFile(const std::string fileName)
 	printf("Finished playback\n");
 
 }
-
-/*
-void Actor::mouseLissajousDrawDemo(void)
-{
-	INPUT input = { 0 };
-	int x = 300;
-	int y = 330;
-	vec2 point = { 1200, 330 };
-
-	moveMouse(input, point, false, true, false, false);
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
-
-	float t = 0.f;
-	for (int i = 0; i < 100; ++i)
-	{
-		input = { 0 };
-		point.x = x + (int)(100 * sin(20.5f * t));
-		point.y = y + (int)(100 * cos(50.f * t));
-
-		moveMouse(input, point, false, false, false, false);
-		SendInput(1, &input, sizeof(INPUT));
-		Sleep(31);
-
-		t += 0.005f;
-
-		if (GetAsyncKeyState(VK_F12) == -32767)
-		{
-			break;
-		}
-	}
-
-	input = { 0 };
-	moveMouse(input, point, true, false, false, false);
-	SendInput(1, &input, sizeof(INPUT));
-	Sleep(31);
-}
-
-void Actor::replayLog(const std::string fileName)
-{
-	printf("- - - Preparing the replaying of log %s\n",
-		fileName.c_str());
-
-	printf("Parsing log before replay\n");
-	LogParser p;
-	std::vector<Action> actions = p.parseLog(fileName);
-
-	std::vector<INPUT> inputs;
-
-	printf("Replaying log\n");
-	for (auto a : actions)
-	{
-		INPUT input;
-
-		if (GetAsyncKeyState(VK_F12) == -32767)
-		{
-			printf("Got F12: breaking from log replay\n");
-			// TODO release all unreleased keys...
-			moveMouse(input, a.mousePos, true, false, false, false);
-			SendInput(1, &input, sizeof(INPUT));
-			return;
-		}
-
-		switch (a.e)
-		{
-		case EVENT_NONE:
-			break;
-		case EVENT_PRESS:
-			// TEMP notice that both left and right act as left
-			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
-			{
-				moveMouse(input, a.mousePos, false, true, false, false);
-				SendInput(1, &input, sizeof(INPUT));
-				//inputs.push_back(input);
-			}
-			break;
-		case EVENT_RELEASE:
-			// TEMP notice that both left and right act as left
-			if (a.keyCode == VK_LBUTTON || a.keyCode == VK_RBUTTON)
-			{
-				moveMouse(input, a.mousePos, true, false, false, false);
-				SendInput(1, &input, sizeof(INPUT));
-				//inputs.push_back(input);
-			}
-			break;
-		case EVENT_MOVE:
-			a.mousePos;
-			moveMouse(input, a.mousePos);
-			SendInput(1, &input, sizeof(INPUT));
-			//inputs.push_back(input);
-			break;
-		case EVENT_WAIT:
-
-			// Each time wait is reached,
-			// SendInput
-			// Flush buffer
-			// Wait
-
-			// TODO if sleep is first...
-			//if (inputs.size() > 0)
-			//{
-			//	SendInput(inputs.size(), &inputs[0], sizeof(INPUT));
-			//}
-			//inputs.clear();
-			Sleep(a.waitTimeMs);
-			break;
-		default:
-			break;
-		}
-		Sleep(31);
-	}
-}
-*/
 
 /*
 This is a test
@@ -313,18 +196,23 @@ vec2 Actor::pointToGlobal(const vec2 & point)
 
 int Actor::virtualToHardware(int virtualCode)
 {
+	/*
+	TODO hex or decimal?
+	*/
 	switch (virtualCode)
 	{
 	case VK_SPACE:
 		return 57;
 	case VK_LEFT:
-		return 75;
+		return 73;	//75;
 	case VK_RIGHT:
-		return 77;
+		return 74;	//77;
 	case VK_UP:
-		return 72;
+		//return 140;	//72;
+		return VK_UP;		// 38
 	case VK_DOWN:
-		return 80;
+		//return 145;	//80;
+		return VK_DOWN;		// 40
 	case VK_ESCAPE:
 		return 1;
 	case 49:
@@ -338,6 +226,12 @@ int Actor::virtualToHardware(int virtualCode)
 		return 0;
 		break;
 	}
+
+	/*
+	74 is down
+	38 is N
+	73 is T
+	*/
 }
 
 /*
